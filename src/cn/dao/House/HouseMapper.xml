@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.dao.House.HouseMapper">
+	<!-- public List<House> findHouse(Pager pager,String title,int type_id,double priceMax,double priceMin); -->
+	<select id="findHouse" resultMap="houseList">
+		SELECT h.*,t.`type_name` FROM `house` h,`type` t  WHERE h.`type_id`=t.`id`
+		<if test="title!=null and title!=''">
+			and title like concat('%',#{title},'%')
+		</if>
+		<if test="type_id!=-1">
+			and type_id =#{type_id}
+		</if>
+		<if test="priceMax!=-1">
+			and price >#{priceMax}
+		</if>
+		<if test="priceMin!=-1">
+			and price &lt; #{priceMin}
+		</if>
+		<if test="pager!=null">
+			limit #{pager.from},#{pager.pageSize}
+		</if>
+	</select>
+	
+	<resultMap type="house" id="houseList">
+		<id property="id" column="id"/>
+		<association property="type" resultMap="typeList"></association>
+	</resultMap>
+	
+	<resultMap type="type" id="typeList">
+		<result column="type_name" property="type_name"/>
+	</resultMap>
+	
+	<!--  public int getTotalCount(@Param("pager")Pager pager,@Param("title") String title, @Param("type_id") int type_id,
+			@Param("priceMax") double priceMax, @Param("priceMin")double priceMin);-->
+	<select id="getTotalCount" resultType="integer">
+		SELECT count(*) FROM `house` h,`type` t  WHERE h.`type_id`=t.`id`
+		<if test="title!=null and title!=''">
+			and title like concat('%',#{title},'%')
+		</if>
+		<if test="type_id!=-1">
+			and type_id =#{type_id}
+		</if>
+		<if test="priceMax!=-1">
+			and price >#{priceMax}
+		</if>
+		<if test="priceMin!=-1">
+			and price &lt; #{priceMin}
+		</if>
+	</select>
+	
+	<!--int insertHouse(House house);  -->
+	<insert id="insertHouse">
+		INSERT INTO `house`.`house` (
+		  `id`,
+		  `title`,
+		  `type_id`,
+		  `fdate`,
+		  `description`,
+		  `price`,
+		  `contact`
+		) 
+		VALUES
+		  (
+		   #{id},
+		   #{title},
+		   #{type_id},
+		   #{fdate},
+		   #{description},
+		   #{price},
+		   #{contact}
+		  ) ;
+	</insert>
+</mapper>
